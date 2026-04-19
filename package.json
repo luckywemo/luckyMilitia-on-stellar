@@ -1,0 +1,44 @@
+{
+  "name": "lucky-militia",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "peerserver": "node scripts/peerserver.cjs",
+    "contract:build": ".\\stellar-cli-bin\\stellar.exe contract build --manifest-path contracts/soroban_militia/Cargo.toml",
+    "contract:deploy": ".\\stellar-cli-bin\\stellar.exe contract deploy --wasm C:\\build_tmp\\wasm32v1-none\\release\\soroban_militia.wasm --source-account %STELLAR_DEPLOYER_SECRET% --network testnet --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\"",
+    "contract:setup": "npm run contract:build && npm run contract:deploy"
+  },
+  "dependencies": {
+    "@google/genai": "^1.34.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
+    "@stellar/freighter-api": "^6.0.1",
+    "@stellar/stellar-sdk": "^15.0.1",
+    "@tanstack/react-query": "^5.90.12",
+    "@types/three": "^0.184.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@upstash/redis": "^1.36.1",
+    "@vercel/og": "^0.8.6",
+    "dotenv": "^17.2.3",
+    "peerjs": "^1.5.4",
+    "phaser": "^3.87.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "soroban_militia_client": "file:packages/soroban_militia_client",
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "buffer": "^6.0.3",
+    "peer": "^1.0.2",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "vite-plugin-node-polyfills": "^0.25.0"
+  }
+}
