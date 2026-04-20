@@ -163,6 +163,11 @@ export class MainScene extends Phaser.Scene {
     } else {
       this.survivalTimer = 0;
     }
+
+    // Safety fallback for mission goals
+    if (this.mission && (!this.mission.targetValue || this.mission.targetValue <= 0)) {
+        this.mission.targetValue = 5; // Default safe goal
+    }
   }
 
   preload() {
@@ -198,14 +203,11 @@ export class MainScene extends Phaser.Scene {
       }
     });
 
-    // Initialize audio if context is already running
+    // Initialize audio if context is already running (only once)
     const soundManager = this.sound as Phaser.Sound.WebAudioSoundManager;
     if (soundManager.context && soundManager.context.state === 'running') {
       this.initAudio();
     }
-
-    // SFX Initialization
-    this.initAudio();
 
     // Initialize seeded random for consistent map generation
     // Initialize custom LCG for guaranteed deterministic map generation across devices
@@ -568,16 +570,22 @@ export class MainScene extends Phaser.Scene {
     this.connectionLabel.setColor(color);
   }
 
+  private audioInitialized = false;
   private initAudio() {
-    if (!this.audioEnabled) return;
+    if (!this.audioEnabled || this.audioInitialized) return;
+    this.audioInitialized = true;
 
     // 1. Initialize Music Playlist
     this.playNextTrack();
 
     // 2. Setup Ambient Layers (Spatial)
-    const ambientLoop = this.sound.add('sfx_powerup', { volume: 0.05, loop: true }); // Using powerup as placeholder ambient hum
-    ambientLoop.play();
-    this.ambientLoops.push(ambientLoop);
+    try {
+        const ambientLoop = this.sound.add('sfx_powerup', { volume: 0.05, loop: true }); 
+        ambientLoop.play();
+        this.ambientLoops.push(ambientLoop);
+    } catch (e) {
+        console.warn('[Audio] Ambient loop setup failed:', e);
+    }
   }
 
   private playNextTrack() {
@@ -1167,7 +1175,7 @@ export class MainScene extends Phaser.Scene {
         }
 
         // Apply movement
-        if (finalForceX !== 0 || finalForceY !== 0) {
+        if ((finalForceX !== 0 || finalForceY !== 0) && !isNaN(finalForceX) && !isNaN(finalForceY)) {
           const finalAngle = Math.atan2(finalForceY, finalForceX);
           
           // Stuck Detection logic
@@ -1248,12 +1256,14 @@ export class MainScene extends Phaser.Scene {
         const checkX = bot.x + Math.cos(angle + offset) * lookAhead;
         const checkY = bot.y + Math.sin(angle + offset) * lookAhead;
         
-        const tile = this.wallLayer.getTileAtWorldXY(checkX, checkY);
-        if (tile && (tile.index === 1 || tile.index === 2)) {
-            // Found wall! Push away from it
-            const awayAngle = angle + offset + Math.PI;
-            force.x += Math.cos(awayAngle) * 2.0;
-            force.y += Math.sin(awayAngle) * 2.0;
+        if (this.wallLayer) {
+            const tile = this.wallLayer.getTileAtWorldXY(checkX, checkY);
+            if (tile && (tile.index === 1 || tile.index === 2)) {
+                // Found wall! Push away from it
+                const awayAngle = angle + offset + Math.PI;
+                force.x += Math.cos(awayAngle) * 2.0;
+                force.y += Math.sin(awayAngle) * 2.0;
+            }
         }
     });
 
