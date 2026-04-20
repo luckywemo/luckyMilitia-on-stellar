@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "npm run build --prefix packages/soroban_militia_client",
     "build": "vite build",
     "preview": "vite preview",
     "peerserver": "node scripts/peerserver.cjs",
