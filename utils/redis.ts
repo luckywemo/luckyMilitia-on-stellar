@@ -20,5 +20,7 @@ export const K = {
     ACTIVE_SESSIONS: 'lm:sessions',
     // Time-based Leaderboards
     LB_SCORE: (period: string) => `lm:lb:${period}`,
+    LB_PVP: (period: string) => `lm:lb:pvp:${period}`,
+    LB_PVE: (period: string) => `lm:lb:pve:${period}`,
     STATS_HASH: (period: string, address: string) => `lm:stats:${period}:${address.toLowerCase()}`,
 }

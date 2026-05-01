@@ -185,6 +185,27 @@ const Lobby: React.FC<Props> = ({ playerName, setPlayerName, characterClass, set
      }
   }, []); // Only run once on mount
 
+  // Registration Logic: Add user to leaderboard as soon as they have a name/wallet
+  useEffect(() => {
+    if (playerName && playerName !== 'ROOKIE') {
+      const registerUser = async () => {
+        try {
+          await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              address: activeAddress || `guest:${playerName.toLowerCase()}`, 
+              username: playerName 
+            })
+          });
+        } catch (err) {
+          console.error('[Lobby] Registration failed:', err);
+        }
+      };
+      registerUser();
+    }
+  }, [playerName, activeAddress]);
+
   const copyInviteLink = () => {
     playUISound('click');
     const link = `${window.location.origin}${window.location.pathname}?room=${activeRoom}`;

@@ -20,6 +20,10 @@ const server = new rpc.Server(RPC_URL);
 /**
  * Sync stats to Stellar and Redis
  */
+export const config = {
+    runtime: 'edge',
+};
+
 export default async function handler(request: Request) {
     if (request.method !== 'POST') {
         return new Response('Method Not Allowed', { status: 405 });
@@ -27,13 +31,15 @@ export default async function handler(request: Request) {
 
     try {
         const body = await request.json();
-        const { address, kills, wins, username } = body;
+        const { address, kills, wins, username, mode } = body;
 
         if (!address || typeof kills !== 'number' || typeof wins !== 'number') {
             return new Response('Invalid Request', { status: 400 });
         }
 
-        const score = (kills * 10) + (wins * 50);
+        // PvP kills worth slightly more (15 vs 10)
+        const killWeight = mode === 'multiplayer' ? 15 : 10;
+        const score = (kills * killWeight) + (wins * 50);
 
         // --- PART 1: REDIS UPDATE (Performance/Leaderboard) ---
         const now = new Date();
@@ -48,11 +54,26 @@ export default async function handler(request: Request) {
 
         const pipeline = redis.pipeline();
         for (const p of periods) {
+            // General Leaderboard
             pipeline.zincrby(K.LB_SCORE(p.key), score, address);
+            
+            // Mode Specific Leaderboard
+            if (mode === 'multiplayer') {
+                pipeline.zincrby(K.LB_PVP(p.key), score, address);
+            } else {
+                pipeline.zincrby(K.LB_PVE(p.key), score, address);
+            }
+
             const statsKey = K.STATS_HASH(p.key, address);
             pipeline.hincrby(statsKey, 'kills', kills);
             pipeline.hincrby(statsKey, 'wins', wins);
             pipeline.hincrby(statsKey, 'score', score);
+            
+            if (mode === 'multiplayer') {
+                pipeline.hincrby(statsKey, 'pvp_kills', kills);
+                pipeline.hincrby(statsKey, 'pvp_wins', wins);
+            }
+
             pipeline.hset(statsKey, { lastCombat: Date.now() });
             if (username) {
                 pipeline.hset(statsKey, { username });

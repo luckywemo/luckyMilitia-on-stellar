@@ -38,3 +38,5 @@ target_build/
 *.tar.gz
 contracts/soroban_militia/target/
 contracts/soroban_militia/target_build/
+.vercel
+.env*.local

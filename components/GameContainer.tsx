@@ -303,23 +303,9 @@ const GameContainer: React.FC<Props> = ({ playerName, characterClass, avatar, ro
     window.addEventListener('SCENE_READY', handleSceneReady);
 
     if (containerRef.current && !gameRef.current) {
-      // Simulate loading progress for better UX
-      const progressSteps = [
-        { progress: 10, message: 'LOADING_CORE_SYSTEMS...' },
-        { progress: 30, message: 'INITIALIZING_PHYSICS_ENGINE...' },
-        { progress: 50, message: 'GENERATING_TACTICAL_MAP...' },
-        { progress: 70, message: 'SPAWNING_UNITS...' },
-        { progress: 90, message: 'DEPLOYING_OPERATOR...' },
-      ];
-
-      let stepIndex = 0;
-      progressInterval = setInterval(() => {
-        if (stepIndex < progressSteps.length) {
-          setLoadingProgress(progressSteps[stepIndex].progress);
-          setLoadingMessage(progressSteps[stepIndex].message);
-          stepIndex++;
-        }
-      }, 200);
+      // Fast initial progress
+      setLoadingProgress(30);
+      setLoadingMessage('INITIALIZING_SYSTEMS...');
 
       gameRef.current = createGame(containerRef.current, playerName, avatar, roomId, isHost, gameMode, characterClass, mission, mpConfig, squad);
 
@@ -338,7 +324,8 @@ const GameContainer: React.FC<Props> = ({ playerName, characterClass, avatar, ro
       if (address && !e.detail.failed) {
         console.log("SYNCING FINAL MISSION RESULTS FOR:", address);
         // Consolidate kills and win status in a single transaction at the end
-        syncStats(e.detail.kills || 0, 1);
+        // Pass gameMode so the backend knows whether to update PvP or PvE leaderboards
+        syncStats(e.detail.kills || 0, 1, gameMode);
       }
     };
 

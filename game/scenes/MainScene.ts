@@ -180,7 +180,7 @@ export class MainScene extends Phaser.Scene {
       { key: 'sfx_boost', path: '/assets/audio/thrust.mp3' },
       { key: 'sfx_death_human', path: '/assets/audio/alien-death.flac' },
       { key: 'sfx_victory', path: '/assets/audio/level-complete.wav' },
-      { key: 'bg_track_1', path: '/assets/audio/bg-music.wav' }, // Reusing existing as first track
+      { key: 'bg_track_1', path: '/assets/audio/bg-music.mp3' }, // Optimized MP3 version
     ];
     audioFiles.forEach(({ key, path }) => {
       if (!this.cache.audio.exists(key)) {

@@ -157,6 +157,15 @@
   - Report system
 - **Match History**: Last 50 games with detailed stats
 
+### 11. Blockchain & Ecosystem Expansion
+- **Multi-Chain Support**:
+  - **Base (L2)**: Integration for high-volume transactions and Farcaster synergy
+  - **Celo**: Mobile-first blockchain integration for global accessibility
+  - **Solana**: High-speed PvP state sync and asset management
+  - **Abstracted Adapter**: Unified wallet interface for multi-chain connectivity
+- **Cross-Chain Identity**: Unified player stats and ranks across all supported networks
+- **On-Chain Assets**: Tokenized equipment and skins as tradeable NFTs (multichain)
+
 ---
 
 ## 🔧 Technical Debt & Code Quality
@@ -303,6 +312,19 @@
 - [ ] Localization (5 languages)
 
 **Deliverable**: Mobile-friendly, accessible game
+
+---
+
+### Phase 6: Multi-Chain Tactical Expansion (Future)
+**Goal**: Universal access across major blockchain ecosystems
+
+- [ ] Implement Unified Blockchain Adapter (Stellar, Base, Solana)
+- [ ] Deploy smart contracts to Base (Solidity) and Solana (Anchor)
+- [ ] Add cross-chain leaderboard aggregation
+- [ ] Integrate universal wallet connection (Dynamic/Web3Auth)
+- [ ] Launch cross-chain seasonal tournaments
+
+**Deliverable**: Lucky Militia available on all major chains
 
 ---
 

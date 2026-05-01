@@ -1,5 +1,9 @@
 import { redis, K } from '../utils/redis';
 
+export const config = {
+    runtime: 'edge',
+};
+
 export default async function handler(req: Request) {
     if (req.method !== 'GET') {
         return new Response('Method Not Allowed', { status: 405 });
@@ -8,6 +12,7 @@ export default async function handler(req: Request) {
     try {
         const url = new URL(req.url);
         const period = url.searchParams.get('period') || 'alltime';
+        const type = url.searchParams.get('type') || 'combined'; // combined, pve, pvp
         const safePeriod = period.replace(/[^a-zA-Z0-9:]/g, '');
 
         let cacheKey = `lm:cache:lb:${safePeriod}`;
@@ -21,7 +26,10 @@ export default async function handler(req: Request) {
         console.log(`[Leaderboard] Fetching for period: ${safePeriod}`);
 
         // 2. Fetch Top 50 from Redis ZSET
-        const lbKey = K.LB_SCORE(safePeriod);
+        let lbKey = K.LB_SCORE(safePeriod);
+        if (type === 'pvp') lbKey = K.LB_PVP(safePeriod);
+        if (type === 'pve') lbKey = K.LB_PVE(safePeriod);
+        
         const topWithScores = await redis.zrange(lbKey, 0, 49, { rev: true, withScores: true });
 
         if (!topWithScores || topWithScores.length === 0) {
@@ -58,7 +66,11 @@ export default async function handler(req: Request) {
 
     } catch (error: any) {
         console.error('[Leaderboard] API Error:', error);
-        return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+        return new Response(JSON.stringify({ 
+            error: 'Internal Server Error', 
+            details: error.message,
+            stack: error.stack
+        }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });

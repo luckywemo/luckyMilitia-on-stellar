@@ -35,6 +35,7 @@ function timeSince(ts: number): string {
 
 export default function Leaderboard({ activeAddress, playerName }: Props) {
     const [period, setPeriod] = useState('alltime');
+    const [type, setType] = useState<'combined' | 'pve' | 'pvp'>('combined');
     const [isLoading, setIsLoading] = useState(false);
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -55,7 +56,7 @@ export default function Leaderboard({ activeAddress, playerName }: Props) {
                 if (period === 'daily') queryPeriod = `daily:${ymd}`;
                 if (period === 'monthly') queryPeriod = `monthly:${ym}`;
 
-                const response = await fetch(`/api/leaderboard?period=${queryPeriod}`);
+                const response = await fetch(`/api/leaderboard?period=${queryPeriod}&type=${type}`);
                 if (!response.ok) throw new Error('Failed to fetch leaderboard');
                 const data = await response.json();
                 setLeaderboardData(data);
@@ -69,7 +70,7 @@ export default function Leaderboard({ activeAddress, playerName }: Props) {
         }
 
         fetchLeaderboard();
-    }, [period]);
+    }, [period, type]);
 
     // Find current player's rank
     const myEntry = useMemo(() => {
@@ -111,29 +112,49 @@ export default function Leaderboard({ activeAddress, playerName }: Props) {
                     <h3 className="text-lg lg:text-xl font-black text-white uppercase tracking-widest flex items-center gap-2">
                         <span className="text-2xl">🏆</span> COMBAT_RECORDS
                     </h3>
-                    <div className="flex gap-1">
-                        {(['alltime', 'monthly', 'daily'] as const).map((p) => (
-                            <button
-                                key={p}
-                                onClick={() => setPeriod(p)}
-                                className={`px-2.5 py-1.5 border rounded text-[8px] lg:text-[9px] font-black uppercase tracking-wider transition-all ${period === p
-                                    ? 'bg-orange-500 text-white border-orange-400 shadow-lg shadow-orange-500/20'
-                                    : 'bg-stone-950 text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
+                    <div className="flex flex-col gap-2">
+                        <div className="flex gap-1 justify-end">
+                            {([
+                                { id: 'combined', label: 'ALL_OPS' },
+                                { id: 'pve', label: 'CAMPAIGN' },
+                                { id: 'pvp', label: 'ARENA' }
+                            ] as const).map((t) => (
+                                <button
+                                    key={t.id}
+                                    onClick={() => setType(t.id)}
+                                    className={`px-2 py-1 rounded text-[7px] font-black uppercase tracking-tighter transition-all ${type === t.id
+                                        ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20'
+                                        : 'bg-black/40 text-stone-600 border border-stone-800/40 hover:text-stone-400'
                                     }`}
-                            >
-                                {p === 'alltime' ? 'ALL_TIME' : p === 'monthly' ? 'MONTHLY' : 'DAILY'}
-                            </button>
-                        ))}
+                                >
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex gap-1">
+                            {(['alltime', 'monthly', 'daily'] as const).map((p) => (
+                                <button
+                                    key={p}
+                                    onClick={() => setPeriod(p)}
+                                    className={`px-2.5 py-1.5 border rounded text-[8px] lg:text-[9px] font-black uppercase tracking-wider transition-all ${period === p
+                                        ? 'bg-orange-500 text-white border-orange-400 shadow-lg shadow-orange-500/20'
+                                        : 'bg-stone-950 text-stone-500 border-stone-800 hover:border-stone-600 hover:text-stone-300'
+                                        }`}
+                                >
+                                    {p === 'alltime' ? 'ALL_TIME' : p === 'monthly' ? 'MONTHLY' : 'DAILY'}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center justify-between relative z-10">
                     <p className="text-[9px] lg:text-[10px] text-stone-500 font-bold uppercase tracking-wider">
-                        Protocol // {period.toUpperCase()} // {leaderboardData.length} OPERATORS_INDEXED
+                        Protocol // {type.toUpperCase()} // {period.toUpperCase()} // {leaderboardData.length} OPERATORS_INDEXED
                     </p>
                     {!isLoading && !error && (
                         <div className="flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                            <span className="text-[7px] text-green-500 font-black uppercase">LIVE</span>
+                            <span className="text-[7px] text-green-500 font-black uppercase">LIVE_FEED</span>
                         </div>
                     )}
                 </div>

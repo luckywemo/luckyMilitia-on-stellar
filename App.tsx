@@ -354,7 +354,12 @@ const AppContent: React.FC = () => {
   // Set player name if we get an address
   useEffect(() => {
     if (address) {
-        setPlayerName(`XLM_${address.slice(0,4)}...${address.slice(-4)}`);
+        const localName = localStorage.getItem('lm_username');
+        if (localName) {
+            setPlayerName(localName);
+        } else {
+            setPlayerName(`XLM_${address.slice(0,4)}...${address.slice(-4)}`);
+        }
     }
   }, [address]);
 
@@ -449,8 +454,10 @@ const AppContent: React.FC = () => {
                 if (existingPubKey) {
                     setAddress(existingPubKey);
                     const stats = await getStats(existingPubKey);
-                    if (stats && stats.username && stats.username !== 'OPERATOR') {
-                        setPlayerName(stats.username);
+                    const localName = localStorage.getItem('lm_username');
+                    
+                    if ((stats && stats.username && stats.username !== 'OPERATOR') || localName) {
+                        setPlayerName(stats?.username && stats.username !== 'OPERATOR' ? stats.username : localName!);
                         setView('lobby');
                     } else {
                         setView('onboarding');
@@ -464,8 +471,10 @@ const AppContent: React.FC = () => {
         {view === 'wallet-auth' && <WalletAuthScreen onComplete={async (addr) => {
             setAddress(addr);
             const stats = await getStats(addr);
-            if (stats && stats.username && stats.username !== 'OPERATOR') {
-                setPlayerName(stats.username);
+            const localName = localStorage.getItem('lm_username');
+
+            if ((stats && stats.username && stats.username !== 'OPERATOR') || localName) {
+                setPlayerName(stats?.username && stats.username !== 'OPERATOR' ? stats.username : localName!);
                 setView('lobby');
             } else {
                 setView('onboarding');
@@ -476,6 +485,7 @@ const AppContent: React.FC = () => {
           <AccountSetupScreen 
             address={address} 
             onComplete={(name, cls) => {
+              localStorage.setItem('lm_username', name);
               setPlayerName(name);
               setCharacterClass(cls);
               setView('lobby');
