@@ -51,7 +51,7 @@ export function useMultiplayer({
         squadRef.current = squad;
     }, [squad]);
 
-    // Handle Peer Destruction and Ping Intervals
+    // Handle Ping Intervals (starts/stops when activeRoom changes)
     useEffect(() => {
         let pingInterval: ReturnType<typeof setInterval>;
         
@@ -66,12 +66,19 @@ export function useMultiplayer({
 
         return () => {
             if (pingInterval) clearInterval(pingInterval);
+        };
+    }, [activeRoom]);
+
+    // Cleanup peer ONLY on component unmount (not on activeRoom changes)
+    useEffect(() => {
+        return () => {
             if (peerRef.current) {
                 mpLog('Disconnecting: Cleaning up local peer session', 'info');
                 peerRef.current.destroy();
+                peerRef.current = null;
             }
         };
-    }, [activeRoom]);
+    }, []);
 
     // Sync name changes to connected peers
     useEffect(() => {
