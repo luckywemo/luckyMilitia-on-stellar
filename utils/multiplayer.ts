@@ -11,9 +11,6 @@ export const mpLog = (message: string, type: 'info' | 'error' | 'success' = 'inf
 /**
  * Standardized PeerJS Configuration for Lucky Militia
  * Optimized for cross-device support (Cloud Signaling + Robust ICE)
- */
-
-// We use 0.peerjs.com as the primary signaling server.
 // Determine if we are running locally
 const isLocalhost = typeof window !== 'undefined' && 
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -25,22 +22,7 @@ const iceConfig = {
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
-        { urls: 'stun:global.stun.twilio.com:3478' },
-        {
-            urls: 'turn:openrelay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:443',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-            username: 'openrelayproject',
-            credential: 'openrelayproject'
-        }
+        { urls: 'stun:global.stun.twilio.com:3478' }
     ],
     iceTransportPolicy: 'all' as RTCIceTransportPolicy,
     iceCandidatePoolSize: 10,
@@ -54,6 +36,10 @@ export const PEER_CONFIG = isLocalhost ? {
     debug: 2,
     config: iceConfig
 } : {
+    host: '0.peerjs.com',
+    port: 443,
+    path: '/',
+    secure: true,
     debug: 2,
     config: iceConfig
 };
