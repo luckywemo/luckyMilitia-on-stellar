@@ -78,6 +78,9 @@ export default async function handler(request: Request) {
             if (username) {
                 pipeline.hset(statsKey, { username });
             }
+
+            // Invalidate the cache for this period so the leaderboard reflects the update immediately
+            pipeline.del(`lm:cache:lb:${p.key}`);
         }
         await pipeline.exec();
         console.log(`[Sync] Updated Redis for ${address} (Name: ${username}, Score +${score})`);

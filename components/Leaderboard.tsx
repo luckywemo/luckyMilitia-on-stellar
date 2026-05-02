@@ -45,9 +45,14 @@ export default function Leaderboard({ activeAddress, playerName }: Props) {
     const { getStats } = useBlockchainStats();
 
     useEffect(() => {
-        async function fetchLeaderboard() {
+        let isMounted = true;
+        
+        async function fetchLeaderboard(isInitialFetch = false) {
             try {
-                setIsLoading(true);
+                if (isInitialFetch && leaderboardData.length === 0) {
+                    setIsLoading(true);
+                }
+                
                 let queryPeriod = 'alltime';
                 const now = new Date();
                 const ymd = now.toISOString().split('T')[0].replace(/-/g, '');
@@ -59,17 +64,31 @@ export default function Leaderboard({ activeAddress, playerName }: Props) {
                 const response = await fetch(`/api/leaderboard?period=${queryPeriod}&type=${type}`);
                 if (!response.ok) throw new Error('Failed to fetch leaderboard');
                 const data = await response.json();
-                setLeaderboardData(data);
-                setError(null);
+                
+                if (isMounted) {
+                    setLeaderboardData(data);
+                    setError(null);
+                }
             } catch (err: any) {
                 console.error('[Leaderboard] Fetch error:', err);
-                setError(err.message);
+                if (isMounted) setError(err.message);
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         }
 
-        fetchLeaderboard();
+        // Initial fetch
+        fetchLeaderboard(true);
+
+        // Polling every 10 seconds
+        const intervalId = setInterval(() => {
+            fetchLeaderboard(false);
+        }, 10000);
+
+        return () => {
+            isMounted = false;
+            clearInterval(intervalId);
+        };
     }, [period, type]);
 
     // Find current player's rank
