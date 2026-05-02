@@ -38,18 +38,24 @@ export default async function handler(req: Request) {
 
         // 3. Hydrate with detailed stats from HASH
         const pipeline = redis.pipeline();
-        topWithScores.forEach((entry: any) => {
-            const statsKey = K.STATS_HASH(safePeriod, entry.member);
+        const entries: { member: string, score: number }[] = [];
+        
+        for (let i = 0; i < topWithScores.length; i += 2) {
+            const member = topWithScores[i] as string;
+            const score = Number(topWithScores[i + 1]);
+            entries.push({ member, score });
+            
+            const statsKey = K.STATS_HASH(safePeriod, member);
             pipeline.hgetall(statsKey);
-        });
+        }
 
         const details = await pipeline.exec();
 
-        const leaderboardData = topWithScores.map((entry: any, i: number) => {
+        const leaderboardData = entries.map((entry, i) => {
             const stat = (details[i] as any) || {};
             return {
                 address: entry.member,
-                username: stat.username || null, // Hydrate username
+                username: stat.username || null,
                 score: entry.score,
                 kills: Number(stat.kills || 0),
                 wins: Number(stat.wins || 0),
