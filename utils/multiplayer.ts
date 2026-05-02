@@ -14,7 +14,17 @@ export const mpLog = (message: string, type: 'info' | 'error' | 'success' = 'inf
  */
 
 // We use 0.peerjs.com as the primary signaling server.
-export const PEER_CONFIG = {
+// Determine if we are running locally
+const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+export const PEER_CONFIG = isLocalhost ? {
+    host: window.location.hostname,
+    port: 9000,
+    path: '/peerjs',
+    secure: false,
+    debug: 2,
+} : {
     host: '0.peerjs.com',
     port: 443,
     path: '/',
