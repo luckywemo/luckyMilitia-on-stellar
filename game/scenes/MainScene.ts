@@ -384,7 +384,7 @@ export class MainScene extends Phaser.Scene {
         this.updateConnectionStatus(`TIMEOUT. RETRYING IN ${delay}ms...`, '#ffaa00');
         setTimeout(() => this.connectToHostWithRetry(attempt + 1), delay);
       }
-    }, 5000); // Increased timeout for cross-region signaling
+    }, 15000); // Increased timeout for cross-region signaling
 
     conn.on('open', () => {
       clearTimeout(connectionTimeout);

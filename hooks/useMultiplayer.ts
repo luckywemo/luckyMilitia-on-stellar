@@ -265,7 +265,7 @@ export function useMultiplayer({
                 const delay = BASE_DELAY * Math.pow(1.5, attempt); // Exponential backoff
                 setTimeout(() => connectToHostWithRetry(hostId, attempt + 1), delay);
             }
-        }, 4000); // 4s timeout per attempt
+        }, 15000); // 15s timeout per attempt (ICE gathering can take 5-10s)
 
         conn.on('error', (err) => {
             clearTimeout(timeoutId);
