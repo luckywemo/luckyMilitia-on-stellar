@@ -11,6 +11,8 @@ export const mpLog = (message: string, type: 'info' | 'error' | 'success' = 'inf
 /**
  * Standardized PeerJS Configuration for Lucky Militia
  * Optimized for cross-device support (Cloud Signaling + Robust ICE)
+ */
+
 // Determine if we are running locally
 const isLocalhost = typeof window !== 'undefined' && 
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
