@@ -18,50 +18,44 @@ export const mpLog = (message: string, type: 'info' | 'error' | 'success' = 'inf
 const isLocalhost = typeof window !== 'undefined' && 
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+const iceConfig = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        { urls: 'stun:global.stun.twilio.com:3478' },
+        {
+            urls: 'turn:openrelay.metered.ca:80',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        }
+    ],
+    iceTransportPolicy: 'all' as RTCIceTransportPolicy,
+    iceCandidatePoolSize: 10,
+};
+
 export const PEER_CONFIG = isLocalhost ? {
     host: window.location.hostname,
     port: 9000,
     path: '/peerjs',
     secure: false,
     debug: 2,
+    config: iceConfig
 } : {
-    host: '0.peerjs.com',
-    port: 443,
-    path: '/',
-    secure: true,
     debug: 2,
-    config: {
-        iceServers: [
-            // STUN Servers (Lightweight, helps with most NATs)
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-            { urls: 'stun:stun3.l.google.com:19302' },
-            { urls: 'stun:stun4.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' },
-
-            // TURN Servers (Relays, required for strict NATs/Firewalls)
-            // NOTE: Free tier OpenRelay. reliable for testing, may throttle in production.
-            {
-                urls: 'turn:openrelay.metered.ca:80',
-                username: 'openrelayproject',
-                credential: 'openrelayproject'
-            },
-            {
-                urls: 'turn:openrelay.metered.ca:443',
-                username: 'openrelayproject',
-                credential: 'openrelayproject'
-            },
-            {
-                urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-                username: 'openrelayproject',
-                credential: 'openrelayproject'
-            }
-        ],
-        // Removed sdpSemantics: 'unified-plan' to allow browser default (Plan B legacy support on some mobiles)
-        iceTransportPolicy: 'all' as RTCIceTransportPolicy,
-        iceCandidatePoolSize: 10,
-    }
+    config: iceConfig
 };
 
 /**
