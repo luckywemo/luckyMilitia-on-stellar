@@ -13,10 +13,6 @@ export const mpLog = (message: string, type: 'info' | 'error' | 'success' = 'inf
  * Optimized for cross-device support (Cloud Signaling + Robust ICE)
  */
 
-// Determine if we are running locally
-const isLocalhost = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
 const iceConfig = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -50,14 +46,7 @@ const iceConfig = {
     iceCandidatePoolSize: 10,
 };
 
-export const PEER_CONFIG = isLocalhost ? {
-    host: window.location.hostname,
-    port: 9000,
-    path: '/peerjs',
-    secure: false,
-    debug: 2,
-    config: iceConfig
-} : {
+export const PEER_CONFIG = {
     host: '0.peerjs.com',
     port: 443,
     path: '/',
